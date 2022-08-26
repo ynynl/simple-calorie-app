@@ -1,5 +1,5 @@
 @url = localhost:3001/api
-
+@authorization = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzMDk0YjdlYTUxMzUyM2IzNjJkMmZkMiIsImlhdCI6MTY2MTU1NzIyN30.rRDc-P4HPLUuFKiOIm4CIUe-9NESDN0rQB9N7bMBVm0
 
 ### Food Entries
 GET http://{{url}}/foods HTTP/1.1
@@ -17,12 +17,12 @@ content-type: application/json
 ###
 POST http://{{url}}/foods HTTP/1.1
 content-type: application/json
+Authorization: {{authorization}}
 
 {
     "name": "sample",
     "calorie": 1000,
-    "price": 10,
-    "userId": "63094b7ea513523b362d2fd2"
+    "price": 10
 }
 
 ### Users

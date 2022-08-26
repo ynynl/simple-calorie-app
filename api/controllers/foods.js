@@ -1,7 +1,19 @@
 const foodEntriesRouter = require('express').Router()
 const Food = require('../models/food')
 const User = require('../models/user')
+const jwt = require('jsonwebtoken')
 
+const getTokenId = request => {
+    const authorization = request.get('authorization')
+    if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+      const token =  authorization.substring(7)
+      const decodedToken = jwt.verify(token, process.env.SECRET)
+      if (decodedToken.id) {
+        return decodedToken.id
+      }
+    }
+    return null
+  }
 
 foodEntriesRouter.get('/', (request, response) => {
     Food.find({}).then(foods => {
@@ -9,27 +21,30 @@ foodEntriesRouter.get('/', (request, response) => {
     })
 })
 
-foodEntriesRouter.get('/:id', (request, response, next) => {
-    Food.findById(request.params.id)
-        .then(food => {
-            if (food) {
-                response.json(food)
-            } else {
-                response.status(404).end()
-            }
-        })
-        .catch(error => next(error))
+foodEntriesRouter.get('/:id', async (request, response) => {
+    const food = await Food.findById(request.params.id)
+    if (food) {
+        response.json(food)
+    } else {
+        response.status(404).end()
+    }
 })
 
 foodEntriesRouter.post('/', async (request, response, next) => {
     const body = request.body
-    const user = await User.findById(body.userId)
+
+    const tokenId = getTokenId(request)
+    if (!tokenId) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+    const user = await User.findById(tokenId)
 
     const food = new Food({
         name: body.name,
         calorie: body.calorie || false,
         date: new Date(),
-        user: user._id
+        user: tokenId
     })
 
     const savedFood = await food.save()
