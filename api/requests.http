@@ -1,0 +1,49 @@
+@url = localhost:3001/api
+
+
+### Food Entries
+GET http://{{url}}/foods HTTP/1.1
+content-type: application/json
+
+###
+POST http://{{url}}/foods HTTP/1.1
+content-type: application/json
+
+{
+    "name": "sample",
+    "calorie": 300
+}
+
+###
+POST http://{{url}}/foods HTTP/1.1
+content-type: application/json
+
+{
+    "name": "sample",
+    "calorie": 1000,
+    "price": 10,
+    "userId": "63094b7ea513523b362d2fd2"
+}
+
+### Users
+GET http://{{url}}/users/ HTTP/1.1
+content-type: application/json
+
+###
+POST http://{{url}}/users HTTP/1.1
+content-type: application/json
+
+{
+    "username": "root",
+    "name": "yinyin",
+    "password": "password"
+}
+
+###
+POST http://{{url}}/login HTTP/1.1
+content-type: application/json
+
+{
+    "username": "root",
+    "password": "password"
+}
