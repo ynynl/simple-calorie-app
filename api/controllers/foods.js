@@ -1,27 +1,27 @@
 const foodEntriesRouter = require('express').Router()
 const Food = require('../models/food')
 const User = require('../models/user')
-const jwt = require('jsonwebtoken')
+const middleware = require('../utils/middleware')
 
-const getTokenId = request => {
-    const authorization = request.get('authorization')
-    if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-      const token =  authorization.substring(7)
-      const decodedToken = jwt.verify(token, process.env.SECRET)
-      if (decodedToken.id) {
-        return decodedToken.id
-      }
+foodEntriesRouter.get('/', middleware.authenticateJWT, (request, response) => {
+    const { role } = request.user;
+
+    if (role !== 'admin') {
+        return response.sendStatus(403);
     }
-    return null
-  }
 
-foodEntriesRouter.get('/', (request, response) => {
     Food.find({}).then(foods => {
         response.json(foods)
     })
 })
 
 foodEntriesRouter.get('/:id', async (request, response) => {
+    const { role } = request.user;
+
+    if (role !== 'admin') {
+        return response.sendStatus(403);
+    }
+
     const food = await Food.findById(request.params.id)
     if (food) {
         response.json(food)
@@ -30,31 +30,37 @@ foodEntriesRouter.get('/:id', async (request, response) => {
     }
 })
 
-foodEntriesRouter.post('/', async (request, response, next) => {
-    const body = request.body
+foodEntriesRouter.post('/', middleware.authenticateJWT, async (request, response, next) => {
+    try {
+        const body = request.body
 
-    const tokenId = getTokenId(request)
-    if (!tokenId) {
-        return response.status(401).json({ error: 'token missing or invalid' })
+        const user = await User.findById(request.user.id)
+
+        const food = new Food({
+            name: body.name,
+            calorie: body.calorie,
+            date: body.date || new Date(),
+            price: body.price,
+            user: user._id
+        })
+
+        const savedFood = await food.save()
+        user.foodEntries = user.foodEntries.concat(savedFood._id)
+        await user.save()
+
+        response.json(savedFood)
+    } catch (error) {
+        next(error)
     }
-
-    const user = await User.findById(tokenId)
-
-    const food = new Food({
-        name: body.name,
-        calorie: body.calorie || false,
-        date: new Date(),
-        user: tokenId
-    })
-
-    const savedFood = await food.save()
-    user.foodEntries = user.foodEntries.concat(savedFood._id)
-    await user.save()
-    
-    response.json(savedFood)
 })
 
-foodEntriesRouter.delete('/:id', (request, response, next) => {
+foodEntriesRouter.delete('/:id', middleware.authenticateJWT, (request, response, next) => {
+    const { role } = request.user;
+
+    if (role !== 'admin') {
+        return response.sendStatus(403);
+    }
+
     Food.findByIdAndRemove(request.params.id)
         .then(() => {
             response.status(204).end()
@@ -62,12 +68,20 @@ foodEntriesRouter.delete('/:id', (request, response, next) => {
         .catch(error => next(error))
 })
 
-foodEntriesRouter.put('/:id', (request, response, next) => {
+foodEntriesRouter.put('/:id', middleware.authenticateJWT, (request, response, next) => {
+    const { role } = request.user;
+
+    if (role !== 'admin') {
+        return response.sendStatus(403);
+    }
+
     const body = request.body
 
     const food = {
         name: body.name,
         calorie: body.calorie,
+        price: body.price,
+        date: body.date,
     }
 
     Food.findByIdAndUpdate(request.params.id, food, { new: true })

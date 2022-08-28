@@ -1,49 +1,99 @@
 @url = localhost:3001/api
-@authorization = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzMDk0YjdlYTUxMzUyM2IzNjJkMmZkMiIsImlhdCI6MTY2MTU1NzIyN30.rRDc-P4HPLUuFKiOIm4CIUe-9NESDN0rQB9N7bMBVm0
+@adminAuth = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJyb2xlIjoiYWRtaW4iLCJpZCI6IjYzMGI4ZTYwZDkzMzdmODA3Mzg1MDVmZCIsImlhdCI6MTY2MTcyMjExN30.rNOHjyuY8242Fj2gQj5P6uRBbTL0bopO8u7L6ySYkd0
+@userAuth = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inl5Iiwicm9sZSI6InVzZXIiLCJpZCI6IjYzMGJkNjRlNjcyMTQzNmU1Y2Y1NjdiNyIsImlhdCI6MTY2MTcyNDg0N30.GDHVY5kyd8-fIyzJ8MtgefhB62ZGUQKt_Y2x1I7QXi0
+@foodId = 630bda68abd176efe61fa877
+@adminId = 630b8e60d9337f80738505fd
+@userId = 630bd64e6721436e5cf567b7
 
-### Food Entries
+
+# Food Entries
+
+###
 GET http://{{url}}/foods HTTP/1.1
 content-type: application/json
+Authorization: {{adminAuth}}
+
+###
+DELETE  http://{{url}}/foods/{{foodId}} HTTP/1.1
+content-type: application/json
+Authorization: {{adminAuth}}
+
+### 403
+DELETE  http://{{url}}/foods/{{foodId}} HTTP/1.1
+content-type: application/json
+Authorization: {{userAuth}}
 
 ###
 POST http://{{url}}/foods HTTP/1.1
 content-type: application/json
+Authorization: {{userAuth}}
 
 {
     "name": "sample",
-    "calorie": 300
+    "calorie": 300,
+    "price": 10
 }
 
 ###
-POST http://{{url}}/foods HTTP/1.1
+PUT http://{{url}}/foods/{{foodId}} HTTP/1.1
 content-type: application/json
-Authorization: {{authorization}}
+Authorization: {{adminAuth}}
 
 {
     "name": "sample",
     "calorie": 1000,
-    "price": 10
+    "price": 30
 }
 
-### Users
+
+
+# Users
+
+### 200
 GET http://{{url}}/users/ HTTP/1.1
 content-type: application/json
+Authorization: {{adminAuth}}
 
-###
-POST http://{{url}}/users HTTP/1.1
+### 403
+GET http://{{url}}/users/ HTTP/1.1
 content-type: application/json
+Authorization: {{userAuth}}
 
-{
-    "username": "root",
-    "name": "yinyin",
-    "password": "password"
-}
+### 200
+GET http://{{url}}/users/{{adminId}} HTTP/1.1
+content-type: application/json
+Authorization: {{adminAuth}}
 
-###
+### 403
+GET http://{{url}}/users/{{adminId}} HTTP/1.1
+content-type: application/json
+Authorization: {{userAuth}}
+
+### 200
+GET http://{{url}}/users/{{userId}} HTTP/1.1
+content-type: application/json
+Authorization: {{userAuth}}
+
+### 200
+GET http://{{url}}/users/{{userId}} HTTP/1.1
+content-type: application/json
+Authorization: {{adminAuth}}
+
+### 200
 POST http://{{url}}/login HTTP/1.1
 content-type: application/json
 
 {
-    "username": "root",
+    "username": "yy",
     "password": "password"
 }
+
+### Sign Up
+POST http://{{url}}/users HTTP/1.1
+content-type: application/json
+
+{
+    "username": "yy",
+    "password": "password"
+}
+
