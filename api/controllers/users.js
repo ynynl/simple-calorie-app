@@ -11,7 +11,7 @@ usersRouter.get('/', middleware.authenticateJWT, async (request, response) => {
     return response.sendStatus(403);
   }
   const users = await User
-    .find({}).populate('foodEntries', { name: 1, date: 1, calorie: 1, price: 1 })
+    .find({}).populate('foodEntries', { food: 1, date: 1, calorie: 1, price: 1 })
 
   response.json(users)
 })
@@ -20,14 +20,14 @@ usersRouter.get('/:id', middleware.authenticateJWT, async (request, response) =>
   try {
     const { role, id } = request.user;
 
-    console.log(request.user);
+    console.log(request.user, request.params.id);
 
     if (role !== 'admin' && request.params.id !== id) {
       return response.sendStatus(403);
     }
 
-    const users = await User.findById(id)
-      .populate('foodEntries', { name: 1, date: 1, calorie: 1, price: 1 })
+    const users = await User.findById(request.params.id)
+      .populate('foodEntries', { food: 1, date: 1, calorie: 1, price: 1 })
 
     response.json(users)
   } catch (error) {

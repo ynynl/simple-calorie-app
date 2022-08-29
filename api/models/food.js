@@ -14,21 +14,24 @@ mongoose.connect(config.MONGODB_URI)
     })
 
 const foodSchema = new mongoose.Schema({
-    name: {
+    food: {
         type: String,
-        minLength: 5,
         required: true
     },
     date: {
         type: Date,
         required: true
     },
-    calorie: Number,
+    calorie: {
+        type: Number,
+        required: true,
+        default: 0
+    },
     price: Number,
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-      }
+    }
 })
 
 foodSchema.set('toJSON', {

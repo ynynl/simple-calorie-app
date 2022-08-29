@@ -34,14 +34,20 @@ foodEntriesRouter.post('/', middleware.authenticateJWT, async (request, response
     try {
         const body = request.body
 
-        const user = await User.findById(request.user.id)
+        let userId = request.user.id
+
+        if (request.user.role === 'admin' && request.body.user) {
+            userId = body.user
+        }
+
+        const user = await User.findById(userId)
 
         const food = new Food({
-            name: body.name,
+            food: body.food,
             calorie: body.calorie,
             date: body.date || new Date(),
             price: body.price,
-            user: user._id
+            user: userId
         })
 
         const savedFood = await food.save()
@@ -78,7 +84,7 @@ foodEntriesRouter.put('/:id', middleware.authenticateJWT, (request, response, ne
     const body = request.body
 
     const food = {
-        name: body.name,
+        food: body.food,
         calorie: body.calorie,
         price: body.price,
         date: body.date,
