@@ -17,6 +17,12 @@ const Admin = () => {
     const [selectedRow, setSelectedRow] = useState<FoodEntry>()
     const [createNew, setCreateNew] = useState(false)
 
+    const lastWeekCount = entries.filter(entry => moment(entry.date)
+        .isBetween(moment().add(-7, "days"), moment())).length
+
+    const WeekBeforeCount = entries.filter(entry => moment(entry.date)
+        .isBetween(moment().add(-14, "days"), moment().add(-7, "days"))).length
+
     const getEntries = async () => {
         try {
             setMessage("Loading...")
@@ -94,9 +100,6 @@ const Admin = () => {
         }
     }
 
-    console.log(entries);
-
-
     const gridRef = useRef<AgGridReact<FoodEntry>>(null);
 
     const onGridReady = useCallback(() => {
@@ -170,10 +173,8 @@ const Admin = () => {
 
     const onRowValueChanged = useCallback((event: RowSelectedEvent<FoodEntry>) => {
         if (event.data) {
-            // Leaf row with data
             var data = event.data;
             updateEntry(data)
-            console.log(data);
         }
     }, []);
 
@@ -183,17 +184,20 @@ const Admin = () => {
                 <Container maxWidth="xl">
                     <h2>Admin</h2>
 
+                    <p>Entries last week: {lastWeekCount}</p>
+                    <p>Entries the week before last week: {WeekBeforeCount}</p>
+
                     <Box display="flex">
-                        <Button 
-                        sx={{ m: 1 }}
+                        <Button
+                            sx={{ m: 1 }}
                             onClick={() => setCreateNew(!createNew)}
                         >
                             Create</Button>
-                        <Button 
-                        color="danger"
-                         sx={{ m: 1 }}
-                         onClick={handleDeleteButton}
-                         >
+                        <Button
+                            color="danger"
+                            sx={{ m: 1 }}
+                            onClick={handleDeleteButton}
+                        >
                             Delete
                         </Button>
                     </Box>
@@ -204,7 +208,7 @@ const Admin = () => {
                         </div>
                     }
 
-                    
+
                     <div className="ag-theme-alpine" style={{ width: "100%", height: 600 }}>
                         <AgGridReact
                             rowData={entries}
