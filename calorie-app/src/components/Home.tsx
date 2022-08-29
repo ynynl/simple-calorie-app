@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import API from "../utils/apis";
 import { FoodEntry, User } from "../utils/interfaces";
 import FoodEntryForm from "./Form";
+import Snackbar from "./Snackbar";
 
 const dailyMax = 2100
 
@@ -186,25 +187,7 @@ export default function Home() {
 
                 </Container>
 
-                <Box
-                    sx={{
-                        position: "fixed",
-                        bottom: 10,
-                        right: 10,
-                    }}>
-                    {message &&
-                        <Sheet variant="soft"
-                            color="danger"
-                            sx={{ p: 3 }}
-                            onClick={() => setMessage("")}
-                        >
-                            <Typography fontSize="lg"  >
-                                {message}  (click to close)
-                            </Typography>
-
-                        </Sheet>
-                    }
-                </Box>
+                <Snackbar message={message} setMessage={setMessage}/>
 
             </main>
             <nav>

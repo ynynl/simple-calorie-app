@@ -79,9 +79,21 @@ const createEntry = async (entry: Partial<FoodEntry>): Promise<FoodEntry> => {
     }
 }
 
+const createEntryAdmin = async (entry: Partial<FoodEntry> & { user: string }): Promise<FoodEntry> => {
+    try {
+        const response = await axios.post<FoodEntry | ErrorResponse>(`/foods`, entry);
+        return (response.data as FoodEntry);
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            throw new Error((error.response.data as ErrorResponse).error)
+        }
+        throw error
+    }
+}
+
 const updateEntry = async (entry: Partial<FoodEntry>): Promise<FoodEntry> => {
     try {
-        const response = await axios.post<FoodEntry | ErrorResponse>(`/foods/${entry.id}`, entry);
+        const response = await axios.put<FoodEntry | ErrorResponse>(`/foods/${entry.id}`, entry);
         return (response.data as FoodEntry);
     } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
@@ -93,10 +105,7 @@ const updateEntry = async (entry: Partial<FoodEntry>): Promise<FoodEntry> => {
 
 const deleteEntry = async (entryId: string): Promise<FoodEntry> => {
     try {
-        const response = await axios.post<FoodEntry | ErrorResponse>(`${baseUri}/foods/${entryId}`, {
-            headers: {
-                'Authorization': loginUser.token
-            },
+        const response = await axios.delete<FoodEntry | ErrorResponse>(`/foods/${entryId}`, {
         });
         return (response.data as FoodEntry);
     } catch (error) {
@@ -107,6 +116,6 @@ const deleteEntry = async (entryId: string): Promise<FoodEntry> => {
     }
 }
 
-const API = { getUser, getAllUser, getAllEntries, createEntry, deleteEntry, updateEntry }
+const API = { getUser, getAllUser, getAllEntries, createEntry, deleteEntry, updateEntry,createEntryAdmin }
 
 export default API

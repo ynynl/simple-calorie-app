@@ -2,8 +2,8 @@ import React from 'react'
 import { Box, Button, Card, Sheet, TextField, Typography } from "@mui/joy";
 import moment from "moment";
 import * as Yup from 'yup';
-import { FoodEntry, User } from "../utils/interfaces";
-import { useFormik, withFormik } from "formik";
+import { FoodEntry, User } from "../../utils/interfaces";
+import { useFormik } from "formik";
 
 const fromSchema = Yup.object().shape({
     food: Yup.string()
@@ -13,23 +13,25 @@ const fromSchema = Yup.object().shape({
         .required('Required'),
     price: Yup.number().min(0, 'Enter a value larger than zero'),
     date: Yup.string().required('Required'),
+    user: Yup.string().required('Required'),
 });
 
 interface PropsType {
-    createEntry: (values: Partial<FoodEntry>) => void;
+    createEntry: (values: Partial<FoodEntry> & { user: string; }) => void;
 }
 
 const Form = ({ createEntry }: PropsType) => {
 
-    const formik = useFormik<Partial<FoodEntry>>({
+    const formik = useFormik<Partial<FoodEntry> & { user: string }>({
         initialValues: {
             food: undefined,
             calorie: undefined,
             price: undefined,
-            date: moment().format().slice(0, 19)
+            date: moment().format().slice(0, 19),
+            user: ""
         },
         validationSchema: fromSchema,
-        onSubmit: (values,{ resetForm}) => {
+        onSubmit: values => {
             createEntry(values);
         },
     });
@@ -54,6 +56,16 @@ const Form = ({ createEntry }: PropsType) => {
                         placeholder="Type in here…"
                         error={!!formik.errors.food}
                         helperText={formik.errors.food}
+                        variant="soft"
+                        autoFocus />
+                    <TextField
+                        label="User Id"
+                        name="user"
+                        onChange={formik.handleChange}
+                        value={formik.values.user}
+                        placeholder="Type in here…"
+                        error={!!formik.errors.user}
+                        helperText={formik.errors.user}
                         variant="soft"
                         autoFocus />
                     <TextField
@@ -86,7 +98,7 @@ const Form = ({ createEntry }: PropsType) => {
                         variant="soft"
                         componentsProps={{ input: { componentsProps: { input: { max: moment().format().slice(0, 19) } } } }}
                     />
-                    <Button type="submit" >Submit</Button>
+                    <Button type="submit" >Create</Button>
                 </Box>
             </form>
         </div>
