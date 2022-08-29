@@ -3,11 +3,12 @@ export interface FoodEntry {
     date: string;
     calorie: number;
     price: number;
-    id?: string;
+    id: string;
 }
 
 
 export interface User {
     id: string;
+    username: string;
     foodEntries: FoodEntry[]
 }

@@ -4,6 +4,11 @@ import { Routes, Route, Link } from "react-router-dom";
 import "./App.css";
 import { CssVarsProvider } from '@mui/joy/styles';
 import Home from "./components/Home"
+import Admin from './components/Admin/Admin';
+
+import 'ag-grid-community/styles/ag-grid.css'; // Core grid CSS, always needed
+import 'ag-grid-community/styles/ag-theme-alpine.css'; // Optional theme CSS
+
 
 function App() {
   return (
@@ -12,30 +17,10 @@ function App() {
         <h1>Simple Calorie App</h1>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="about" element={<About />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </div>
     </CssVarsProvider >
-  );
-}
-
-// App.js
-
-
-function About() {
-  return (
-    <>
-      <main>
-        <h2>Who are we?</h2>
-        <p>
-          That feels like an existential question, don't you
-          think?
-        </p>
-      </main>
-      <nav>
-        <Link to="/">Home</Link>
-      </nav>
-    </>
   );
 }
 

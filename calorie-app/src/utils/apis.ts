@@ -25,11 +25,7 @@ interface ErrorResponse {
 
 const getUser = async (): Promise<User> => {
     try {
-        const response = await axios.get<User | ErrorResponse>(`${baseUri}/users/${loginUser.id}`, {
-            headers: {
-                'Authorization': loginUser.token
-            }
-        });
+        const response = await axios.get<User | ErrorResponse>(`/users/${loginUser.id}`);
         return (response.data as User);
     } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
@@ -41,7 +37,7 @@ const getUser = async (): Promise<User> => {
 
 const getAllUser = async (): Promise<User[]> => {
     try {
-        const response = await axios.get<User[] | ErrorResponse>(`${baseUri}/users}`, {
+        const response = await axios.get<User[] | ErrorResponse>(`/users`, {
             headers: {
                 'Authorization': loginUser.token
             }
@@ -55,14 +51,14 @@ const getAllUser = async (): Promise<User[]> => {
     }
 }
 
-const getAllEntries = async (): Promise<User[]> => {
+const getAllEntries = async (): Promise<FoodEntry[]> => {
     try {
-        const response = await axios.get<User[] | ErrorResponse>(`${baseUri}/foods}`, {
+        const response = await axios.get<FoodEntry[] | ErrorResponse>(`/foods`, {
             headers: {
                 'Authorization': loginUser.token
             }
         });
-        return (response.data as User[]);
+        return (response.data as FoodEntry[]);
     } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
             throw new Error((error.response.data as ErrorResponse).error)
@@ -71,10 +67,10 @@ const getAllEntries = async (): Promise<User[]> => {
     }
 }
 
-const createEntry = async (entry: FoodEntry): Promise<User> => {
+const createEntry = async (entry: Partial<FoodEntry>): Promise<FoodEntry> => {
     try {
-        const response = await axios.post<User | ErrorResponse>(`/foods`, entry);
-        return (response.data as User);
+        const response = await axios.post<FoodEntry | ErrorResponse>(`/foods`, entry);
+        return (response.data as FoodEntry);
     } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
             throw new Error((error.response.data as ErrorResponse).error)
@@ -83,15 +79,10 @@ const createEntry = async (entry: FoodEntry): Promise<User> => {
     }
 }
 
-const updateEntry = async (entry: FoodEntry): Promise<User> => {
+const updateEntry = async (entry: Partial<FoodEntry>): Promise<FoodEntry> => {
     try {
-        const response = await axios.post<User | ErrorResponse>(`${baseUri}/foods/${entry.id}`, {
-            headers: {
-                'Authorization': loginUser.token
-            },
-            data: entry
-        });
-        return (response.data as User);
+        const response = await axios.post<FoodEntry | ErrorResponse>(`/foods/${entry.id}`, entry);
+        return (response.data as FoodEntry);
     } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
             throw new Error((error.response.data as ErrorResponse).error)
@@ -100,14 +91,14 @@ const updateEntry = async (entry: FoodEntry): Promise<User> => {
     }
 }
 
-const deleteEntry = async (entryId: string): Promise<User> => {
+const deleteEntry = async (entryId: string): Promise<FoodEntry> => {
     try {
-        const response = await axios.post<User | ErrorResponse>(`${baseUri}/foods/${entryId}`, {
+        const response = await axios.post<FoodEntry | ErrorResponse>(`${baseUri}/foods/${entryId}`, {
             headers: {
                 'Authorization': loginUser.token
             },
         });
-        return (response.data as User);
+        return (response.data as FoodEntry);
     } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
             throw new Error((error.response.data as ErrorResponse).error)
