@@ -197,13 +197,15 @@ const Admin = () => {
                             Delete
                         </Button>
                     </Box>
+
                     {createNew &&
                         <div>
                             <Form createEntry={createEntry}></Form>
                         </div>
                     }
-                    <div className="ag-theme-alpine" style={{ width: "100%", height: 600 }}>
 
+                    
+                    <div className="ag-theme-alpine" style={{ width: "100%", height: 600 }}>
                         <AgGridReact
                             rowData={entries}
                             columnDefs={columns}

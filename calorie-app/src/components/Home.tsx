@@ -1,4 +1,4 @@
-import { Box, Button, Card, Sheet, Container, Typography, TextField, Radio } from "@mui/joy";
+import { Box, Button, Card, Sheet, Container, Typography, TextField, Radio, RadioGroup } from "@mui/joy";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -7,14 +7,15 @@ import { FoodEntry, User } from "../utils/interfaces";
 import FoodEntryForm from "./Form";
 import Snackbar from "./Snackbar";
 
-const dailyMax = 2100
+const dailyMaxCal = 2100
+const dailyMaxSpend = 1000
 
 export default function Home() {
 
     const [message, setMessage] = useState('')
     const [user, setUser] = useState<User>()
     const [displayDate, setDisplayDate] = useState(moment().format())
-    const [showValue, setShowValue] = useState('calorie')
+    const [showPrice, setShowPrice] = useState(false)
 
     // const displayDate = moment().add(-daybefore, "days")
 
@@ -22,7 +23,8 @@ export default function Home() {
         .filter(foodEntry => moment(foodEntry.date).isSame(displayDate, "day"))
         .sort((a, b) => moment(a.date).diff(moment(b.date)) > 0 ? 1 : -1)
 
-    const dailyTotal = foodEntries?.reduce((prev, curr) => prev + curr.calorie, 0) || 0
+    const dailyTotalCal = foodEntries?.reduce((prev, curr) => prev + curr.calorie, 0) || 0
+    const dailyTotalSpend = foodEntries?.reduce((prev, curr) => prev + curr.price || 0, 0) || 0
 
     const getUser = async () => {
         try {
@@ -65,12 +67,20 @@ export default function Home() {
     }, [])
 
     useEffect(() => {
-        if (dailyTotal > dailyMax) {
-            setMessage("Total calorie has exceed the maximum")
+        if (showPrice) {
+            if (dailyTotalSpend > dailyMaxSpend) {
+                setMessage("Total spending has exceed the maximum")
+            } else {
+                setMessage("")
+            }
         } else {
-            setMessage("")
+            if (dailyTotalCal > dailyMaxCal) {
+                setMessage("Total calorie has exceed the maximum")
+            } else {
+                setMessage("")
+            }
         }
-    }, [dailyTotal])
+    }, [dailyTotalCal, showPrice])
 
 
     const setPrev = () => {
@@ -88,8 +98,8 @@ export default function Home() {
         setDisplayDate(moment(e.target.value).format())
     }
 
-    const toggleShowValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setShowValue(e.target.value)
+    const toggleShowValue = () => {
+        setShowPrice(!showPrice)
     }
 
 
@@ -104,20 +114,9 @@ export default function Home() {
                             minWidth: '320px', my: 3,
                         }}>
                             <Box sx={{ display: 'flex', gap: 2 }}>
-                                <Radio
-                                    checked={showValue === 'calorie'}
-                                    label="Calorie"
-                                    onChange={toggleShowValue}
-                                    value="calorie"
-                                    name="show-value"
-                                />
-                                <Radio
-                                    checked={showValue === 'price'}
-                                    label="Price"
-                                    onChange={toggleShowValue}
-                                    value="price"
-                                    name="show-value"
-                                />
+                                <Button onClick={toggleShowValue}>
+                                    {showPrice ? "Calorie" : "Spending"}
+                                </Button>
                             </Box>
 
 
@@ -142,17 +141,31 @@ export default function Home() {
                                 </Button>
                             </Box>
 
-                            <Typography
-                                level="h2"
-                                fontWeight="lg"
-                                color={dailyTotal < dailyMax ? "primary" : "danger"}
-                            >
-                                {dailyTotal} cal
-                            </Typography>
-                            <Typography level="h2" fontWeight="sm"
-                            >
-                                /{dailyMax} cal
-                            </Typography>
+                            {showPrice ? <>
+                                <Typography
+                                    level="h2"
+                                    fontWeight="lg"
+                                    color={dailyTotalCal < dailyMaxCal ? "primary" : "danger"}
+                                >
+                                    ${dailyTotalSpend}
+                                </Typography>
+                                <Typography level="h2" fontWeight="sm"
+                                >
+                                    /${dailyMaxSpend}
+                                </Typography></>
+                                : <>
+                                    <Typography
+                                        level="h2"
+                                        fontWeight="lg"
+                                        color={dailyTotalCal < dailyMaxCal ? "primary" : "danger"}
+                                    >
+                                        {dailyTotalCal} cal
+                                    </Typography>
+                                    <Typography level="h2" fontWeight="sm"
+                                    >
+                                        /{dailyMaxCal} cal
+                                    </Typography></>
+                            }
                             {foodEntries.map((foodEntry) => <div key={foodEntry.id}>
                                 <Box sx={{ display: 'flex' }}>
                                     <Box sx={{ flexGrow: 1, textAlign: 'left' }}>
@@ -162,8 +175,10 @@ export default function Home() {
                                         </Typography>
                                     </Box>
 
+
                                     <Typography fontSize="lg" fontWeight="md" sx={{ alignSelf: 'flex-end' }}>
-                                        {foodEntry.calorie} cal
+                                        {showPrice ? `$ ${foodEntry.price}` : `${foodEntry.calorie} cal`}
+
                                     </Typography>
                                 </Box>
                             </div>)}
@@ -187,7 +202,7 @@ export default function Home() {
 
                 </Container>
 
-                <Snackbar message={message} setMessage={setMessage}/>
+                <Snackbar message={message} setMessage={setMessage} />
 
             </main>
             <nav>
