@@ -145,7 +145,7 @@ export default function Home() {
                                 <Typography
                                     level="h2"
                                     fontWeight="lg"
-                                    color={dailyTotalCal < dailyMaxCal ? "primary" : "danger"}
+                                    color={dailyTotalSpend < dailyMaxSpend ? "primary" : "danger"}
                                 >
                                     ${dailyTotalSpend}
                                 </Typography>

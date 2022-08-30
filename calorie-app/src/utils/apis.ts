@@ -7,11 +7,13 @@ const adminUser = {
 }
 
 const regUser = {
-    id: '630bda68abd176efe61fa877',
+    id: '630bd64e6721436e5cf567b7',
     token: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inl5Iiwicm9sZSI6InVzZXIiLCJpZCI6IjYzMGJkNjRlNjcyMTQzNmU1Y2Y1NjdiNyIsImlhdCI6MTY2MTcyNDg0N30.GDHVY5kyd8-fIyzJ8MtgefhB62ZGUQKt_Y2x1I7QXi0'
 }
 
-const loginUser = adminUser
+let loginUser = adminUser
+
+// loginUser = regUser
 
 const baseUri = 'http://localhost:3001/api'
 
@@ -35,14 +37,10 @@ const getUser = async (): Promise<User> => {
     }
 }
 
-const getAllUser = async (): Promise<User[]> => {
+const getUserAdmin = async (id: string): Promise<User> => {
     try {
-        const response = await axios.get<User[] | ErrorResponse>(`/users`, {
-            headers: {
-                'Authorization': loginUser.token
-            }
-        });
-        return (response.data as User[]);
+        const response = await axios.get<User | ErrorResponse>(`/users/${id}`);
+        return (response.data as User);
     } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
             throw new Error((error.response.data as ErrorResponse).error)
@@ -51,16 +49,33 @@ const getAllUser = async (): Promise<User[]> => {
     }
 }
 
+const getAllUser = async (): Promise<User[]> => {
+    try {
+        const response = await axios.get<User[] | ErrorResponse>(`/users`);
+        return (response.data as User[]);
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            if (error.response.status === 403 || error.response.status === 401) {
+                console.log(error);
+                
+                throw new Error("No Permission")
+            }
+            throw new Error((error.response.data as ErrorResponse).error)
+        }
+        throw error
+    }
+}
+
 const getAllEntries = async (): Promise<FoodEntry[]> => {
     try {
-        const response = await axios.get<FoodEntry[] | ErrorResponse>(`/foods`, {
-            headers: {
-                'Authorization': loginUser.token
-            }
-        });
+        const response = await axios.get<FoodEntry[] | ErrorResponse>(`/foods`);
         return (response.data as FoodEntry[]);
     } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
+            if (error.response.status === 403 || error.response.status === 401) {
+                console.log(error);
+                throw new Error("No Permission")
+            }
             throw new Error((error.response.data as ErrorResponse).error)
         }
         throw error
@@ -116,6 +131,6 @@ const deleteEntry = async (entryId: string): Promise<FoodEntry> => {
     }
 }
 
-const API = { getUser, getAllUser, getAllEntries, createEntry, deleteEntry, updateEntry,createEntryAdmin }
+const API = { getUser, getAllUser, getAllEntries, createEntry, deleteEntry, updateEntry, createEntryAdmin, getUserAdmin }
 
 export default API

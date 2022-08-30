@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Box, Button, Container, Sheet, Typography } from '@mui/joy';
+import React, { useCallback, useRef, useState } from 'react'
+import { Box, Button, Container,} from '@mui/joy';
 import API from '../../utils/apis';
 import { FoodEntry } from '../../utils/interfaces';
 import { Link } from 'react-router-dom';
 import { AgGridReact } from 'ag-grid-react';
 import moment from 'moment';
-import { RowSelectedEvent, ValueFormatterParams, ValueParserParams } from 'ag-grid-community';
+import { ICellRendererParams, RowSelectedEvent, ValueFormatterParams, ValueParserParams } from 'ag-grid-community';
 import DatePicker from './DatePicker';
-import Form from './Form';
 import Snackbar from '../Snackbar';
 
 
@@ -15,7 +14,6 @@ const Admin = () => {
     const [message, setMessage] = useState('')
     const [entries, setEntries] = useState<FoodEntry[]>([])
     const [selectedRow, setSelectedRow] = useState<FoodEntry>()
-    const [createNew, setCreateNew] = useState(false)
 
     const lastWeekCount = entries.filter(entry => moment(entry.date)
         .isBetween(moment().add(-7, "days"), moment())).length
@@ -29,7 +27,7 @@ const Admin = () => {
             const res = await API.getAllEntries()
             setEntries(res)
             setMessage("")
-        } catch (error) {
+        } catch (error) {            
             if (error instanceof (Error)) {
                 setMessage(error.message)
             } else if (typeof error === "string") {
@@ -63,24 +61,6 @@ const Admin = () => {
         }
     }
 
-    const createEntry = async (values: Partial<FoodEntry> & { user: string; }) => {
-        try {
-            setMessage("Loading...")
-            const res = await API.createEntryAdmin(values)
-            if (entries) {
-                setEntries([...entries, res])
-            }
-            setMessage("")
-        } catch (error) {
-            if (error instanceof (Error)) {
-                setMessage(error.message)
-            } else if (typeof error === "string") {
-                setMessage(error)
-            } else {
-                setMessage("unknown error")
-            }
-        }
-    }
     const updateEntry = async (values: Partial<FoodEntry>) => {
         try {
             setMessage("Loading...")
@@ -168,6 +148,7 @@ const Admin = () => {
             field: 'user',
             headerName: 'User',
             width: 230,
+            cellRenderer: (props: ICellRendererParams) => <Link to={`users/${props.value}`}>{props.value}</Link>
         },
     ];
 
@@ -189,11 +170,6 @@ const Admin = () => {
 
                     <Box display="flex">
                         <Button
-                            sx={{ m: 1 }}
-                            onClick={() => setCreateNew(!createNew)}
-                        >
-                            Create</Button>
-                        <Button
                             color="danger"
                             sx={{ m: 1 }}
                             onClick={handleDeleteButton}
@@ -201,13 +177,6 @@ const Admin = () => {
                             Delete
                         </Button>
                     </Box>
-
-                    {createNew &&
-                        <div>
-                            <Form createEntry={createEntry}></Form>
-                        </div>
-                    }
-
 
                     <div className="ag-theme-alpine" style={{ width: "100%", height: 600 }}>
                         <AgGridReact
